@@ -52,12 +52,56 @@ export default function Fatura(props) {
         setFatura(_fatura)
     }
 
+    function handleChangeDividir(value, item) {
+        let selected = [];
+        let _fatura = { ...fatura }
+        let index = fatura.contas.indexOf(item)
+
+        value.map(v => {
+            selected = [...selected, fiadores.filter(fiador => fiador._id === v)[0]]
+        })
+
+        item.dividir = selected;
+
+        _fatura.contas.splice(index, 1, item);
+
+        if (item.fiador === 'Dividir') {
+            dividir(item);
+        }
+
+        setFatura(_fatura);
+    }
+
     async function handleSave() {
         setLoading(true);
 
         await api.put(`/fatura/${fatura._id}`, fatura);
 
         setLoading(false);
+    }
+
+    function dividir(conta) {
+        let _fatura = { ...fatura }
+        let newConta;
+        let newContas = [];
+
+        conta.dividir && conta.dividir.map(d => {
+            newConta = { ...conta }
+            newConta.value = conta.value / conta.dividir.length;
+            newConta.fiador = d.name;
+            newContas = [...newContas, newConta]
+        })
+
+        _fatura.contas.splice(0, 0, ...newContas);
+
+        setFatura(_fatura)
+        // const [removed] = _fatura.contas.splice(source.index, 1);
+
+        // _fatura.contas[source.index].fiador = destination.droppableId === 'droppableSider' ? '' : (
+        //     fiadores.filter(fiador => (
+        //         fiador._id === destination.droppableId
+        //     ))[0].name
+        // )
     }
 
     function onDragEnd(result) {
@@ -79,6 +123,7 @@ export default function Fatura(props) {
                 fiador._id === destination.droppableId
             ))[0].name
         )
+
 
         // _fatura.indexOf()
 
@@ -201,9 +246,15 @@ export default function Fatura(props) {
                                                 style={{ marginRight: 50 }}>
                                                 <p>{calc(fatura.contas.filter(f => f.fiador === fiador.name))}</p>
                                                 <p>{fiador._id}</p>
+                                                <p>{fiador.name}</p>
                                                 <div style={{ border: '1px solid #000', minWidth: '30%', minHeight: '100vh' }}>
                                                     {fatura.contas.map((item, index) => item.fiador === fiador.name ? (
-                                                        <DraggableCardConta key={index.toString()} item={item} index={index} />
+                                                        <DraggableCardConta
+                                                            key={index.toString()}
+                                                            item={item}
+                                                            index={index}
+                                                            fiadores={fatura.fiadores}
+                                                            handleChangeDividir={handleChangeDividir} />
                                                     ) : null)}
                                                 </div>
                                                 {provided.placeholder}

@@ -76,7 +76,6 @@ export default function Index(props) {
 
     return (
         <Layout>
-
             <Layout style={{ padding: '0 24px 24px' }}>
                 <Content
                     className="site-layout-background"
@@ -121,6 +120,5 @@ export default function Index(props) {
                 </Content>
             </Layout>
         </Layout>
-
     );
 }
